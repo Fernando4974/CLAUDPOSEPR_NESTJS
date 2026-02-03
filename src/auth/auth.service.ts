@@ -16,6 +16,7 @@ import { ForgotPasswordDto } from './dto/forgot.password.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LoginResponse } from './interfaces/login-response.interfaces';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class AuthService {
@@ -130,8 +131,21 @@ export class AuthService {
     return `This action returns all auth`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async findOne(term: string) {
+    let user: User | null = null;
+    if (isUUID(term)) {
+      user = await this.userRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.userRepository.createQueryBuilder('user');
+      user = await queryBuilder
+        .where('user.email = :email or LOWER(user.name) = :name', {
+          email: term,
+          name: term.toLowerCase(),
+        })
+        .getOne();
+
+      return user;
+    }
   }
 
   update(id: number, updateAuthDto: UpdateUserDto) {

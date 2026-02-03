@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from './common/common.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ProductsModule } from './products/products.module';
+import { MessagesWsModule } from './messages-ws/messages-ws.module';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     }),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
+      ssl: process.env.STAGE === 'prod',
       type: 'postgres',
       database: process.env.DB_NAME,
       host: process.env.DB_HOST!,
@@ -35,6 +38,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
     }),
     AuthModule,
     CommonModule,
+    ProductsModule,
+    MessagesWsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
