@@ -1,4 +1,6 @@
 import {
+  ConflictException,
+  HttpCode,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -34,6 +36,7 @@ export class AuthService {
       return {
         message: `User ${user.name} created successfully`,
         token: this.generateJwtToken({ id: user.id }),
+        user: createUserDto.name,
       };
     } catch (error) {
       this.handleDBErrors(error);
@@ -52,12 +55,16 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException({ error: 'User not found' });
     }
+    const passwordRegular = loginUserDto.password;
     const isPasswordValid = await bcrypt.compare(
       loginUserDto.password,
       user.password,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException({ error: 'Invalid password' });
+      throw new UnauthorizedException({ 
+        error: 'SERVER: Invalid password',
+        message: passwordRegular,
+      });
     }
     return {
       message: `User ${user.name} logged in successfully`,
@@ -65,7 +72,9 @@ export class AuthService {
     };
   }
   // Send recovery email
+  @HttpCode(201)
   async sendRecoveryEmail(forgotPasswordDto: ForgotPasswordDto) {
+    console.log('sendEmailFunctionON');
     const user = await this.userRepository.findOne({
       where: { email: forgotPasswordDto.email },
     });
@@ -73,7 +82,9 @@ export class AuthService {
       throw new UnauthorizedException({ error: 'User not found' });
     }
     const token = this.generateJwtToken({ id: user.id });
-    const recoveryUrl = `http://localhost:3001/auth/reset-password?token=${token}`;
+    const recoveryUrl =
+      process.env.UrlForResetPassword + token + '&email=' + user.email;
+    console.log(recoveryUrl);
     try {
       await this.mailerService.sendMail({
         to: user.email,
@@ -158,7 +169,7 @@ export class AuthService {
   private handleDBErrors(error: any): never {
     // Implement your database error handling logic here
     if (error.code === '23505') {
-      throw new InternalServerErrorException({ error: error.detail });
+      throw new ConflictException('User is already exist ');
     }
 
     throw new InternalServerErrorException(

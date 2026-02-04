@@ -14,6 +14,12 @@ async function bootstrap() {
     }),
   );
   logger.log(`Application running on port ${process.env.PORT ?? 3001}`);
+  app.enableCors();
+  // app.enableCors({
+  //   origin: 'http://localhost:4200',
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   credentials: true,
+  // });
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

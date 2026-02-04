@@ -26,6 +26,8 @@ export class Product {
   slug: string;
   @Column({ type: 'text', nullable: true, array: true })
   tags: string[];
+  @Column({ type: 'int', nullable: true, unique: true })
+  keyNumber: number;
   @ManyToOne(() => User, (user) => user.products, { eager: true })
   user: User;
   @OneToMany(() => ProductImage, (productImage) => productImage.product, {

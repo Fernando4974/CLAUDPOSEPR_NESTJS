@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   MaxLength,
   MinLength,
@@ -29,4 +30,6 @@ export class CreateProductDto {
   @IsString({ each: true })
   @IsArray()
   tags?: string[];
+  @IsPositive()
+  keyNumber?: number;
 }

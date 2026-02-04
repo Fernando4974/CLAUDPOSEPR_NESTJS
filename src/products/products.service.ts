@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Repository } from 'typeorm';
@@ -13,19 +17,24 @@ export class ProductsService {
     private readonly productsRepository: Repository<Product>,
   ) {}
   async create(createProductDto: CreateProductDto, user: User) {
-    const product = this.productsRepository.create({
-      ...createProductDto,
-      user,
-    });
-    return await this.productsRepository.save(product);
+    try {
+      const product = this.productsRepository.create({
+        ...createProductDto,
+        user,
+      });
+      return await this.productsRepository.save(product);
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll() {
+    const products = await this.productsRepository.find({});
+    return products;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    return await this.productsRepository.findOneBy({ id });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
@@ -34,5 +43,18 @@ export class ProductsService {
 
   remove(id: number) {
     return `This action removes a #${id} product`;
+  }
+  private handleDBErrors(error: any): never {
+    // Implement your database error handling logic here
+    if (error.code === '23505') {
+      console.log(error);
+      throw new ConflictException(
+        'Product is already exist or keyName is already asigned',
+      );
+    }
+
+    throw new InternalServerErrorException(
+      'Database error occurred' + error.message,
+    );
   }
 }
