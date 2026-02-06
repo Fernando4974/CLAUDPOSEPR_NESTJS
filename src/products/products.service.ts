@@ -30,6 +30,7 @@ export class ProductsService {
 
   async findAll() {
     const products = await this.productsRepository.find({});
+    console.log(products);
     return products;
   }
 

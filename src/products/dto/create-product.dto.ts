@@ -1,10 +1,12 @@
 import {
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  Max,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -18,11 +20,14 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   description?: string;
-  @IsNumber()
   @IsOptional()
+  @IsString()
+  barcode?: string;
+  @IsNumber()
   price: number;
   @IsNumber()
-  stock: number;
+  @IsOptional()
+  stock?: number;
   @IsOptional()
   @IsString()
   slug?: string;
@@ -30,6 +35,15 @@ export class CreateProductDto {
   @IsString({ each: true })
   @IsArray()
   tags?: string[];
+  @IsNumber()
   @IsPositive()
-  keyNumber?: number;
+  @IsOptional()
+  @Max(25)
+  numberKey?: number;
+  @IsBoolean()
+  @IsOptional()
+  posAvalible?: boolean;
+  @IsString()
+  @IsOptional()
+  categorie: string;
 }
