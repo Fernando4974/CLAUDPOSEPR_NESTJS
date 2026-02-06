@@ -61,7 +61,7 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordValid) {
-      throw new UnauthorizedException({ 
+      throw new UnauthorizedException({
         error: 'SERVER: Invalid password',
         message: passwordRegular,
       });

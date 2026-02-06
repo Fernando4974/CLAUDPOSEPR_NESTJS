@@ -24,7 +24,7 @@ export class Product {
   @Column({ type: 'decimal', nullable: false, default: 0 })
   price: number;
 
-  @Column({ type: 'int', default: 0, nullable: false })
+  @Column({ type: 'int', default: 0, nullable: true })
   stock: number;
 
   @Column({ type: 'text', unique: true, nullable: true })
