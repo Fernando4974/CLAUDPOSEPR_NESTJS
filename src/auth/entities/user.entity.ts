@@ -26,7 +26,7 @@ export class User {
 
   // entities relationships can be defined here
   @OneToMany(() => Product, (product) => product.user)
-  products: Product[];
+  products: Product;
 
   @BeforeInsert()
   normalizeEmail() {

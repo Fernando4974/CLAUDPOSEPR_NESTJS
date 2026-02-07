@@ -11,6 +11,9 @@ import { MessagesWsModule } from './messages-ws/messages-ws.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MailerModule.forRootAsync({
       useFactory: () => ({
         transport: {
@@ -24,7 +27,6 @@ import { MessagesWsModule } from './messages-ws/messages-ws.module';
         },
       }),
     }),
-    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       ssl: process.env.STAGE === 'prod',
       type: 'postgres',

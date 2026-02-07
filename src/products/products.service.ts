@@ -9,20 +9,40 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProductImage } from './entities/product-images.entity';
+import { CloudinaryService } from 'src/common/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productsRepository: Repository<Product>,
+    @InjectRepository(ProductImage)
+    private readonly productImagesRepository: Repository<ProductImage>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
-  async create(createProductDto: CreateProductDto, user: User) {
+  async create(
+    createProductDto: CreateProductDto,
+    user: User,
+    file: Express.Multer.File,
+  ) {
+    const { ...productDetails } = createProductDto;
     try {
-      const product = this.productsRepository.create({
-        ...createProductDto,
-        user,
+      const uploadResult = await this.cloudinaryService.uploadFile(file);
+      const urlImage = uploadResult.secure_url;
+      const productImage = this.productImagesRepository.create({
+        url: urlImage,
       });
-      return await this.productsRepository.save(product);
+
+      const product = this.productsRepository.create({
+        ...productDetails,
+        user,
+        images: [productImage],
+      });
+      console.log('imgurl;', product.images);
+
+      await this.productsRepository.save(product);
+      return { ...product };
     } catch (error) {
       this.handleDBErrors(error);
     }
